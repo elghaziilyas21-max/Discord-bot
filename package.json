@@ -1,18 +1,23 @@
 {
-  "name": "discord-fortnite-bot",
+  "name": "fortnite-skins-bot",
   "version": "1.0.0",
-  "description": "Discord bot with /skin and /locker commands returning Fortnite skins (discord.js v14)",
+  "description": "Discord bot for Fortnite skin lookup with discord.js v14",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "deploy-commands": "node src/deploy-commands.js"
+    "deploy": "node src/deploy-commands.js"
   },
-  "engines": {
-    "node": ">=16.9.0"
-  },
+  "keywords": [
+    "discord",
+    "bot",
+    "fortnite",
+    "skins"
+  ],
+  "author": "",
+  "license": "MIT",
   "dependencies": {
     "discord.js": "^14.11.0",
-    "@discordjs/rest": "^1.6.0",
-    "dotenv": "^16.0.0"
-  }
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {}
 }

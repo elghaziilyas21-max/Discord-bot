@@ -1,39 +1,45 @@
-require('dotenv').config();
-
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-
-const clientId = process.env.CLIENT_ID;
-const token = process.env.TOKEN;
-
-if (!clientId || !token) {
-  console.error('Missing CLIENT_ID or TOKEN in environment');
-  process.exit(1);
-}
+const { REST, Routes } = require('discord.js');
+require('dotenv').config();
 
 const commands = [];
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+// Collect all commands
 for (const file of commandFiles) {
-  const command = require(path.join(commandsPath, file));
-  if (command.data) commands.push(command.data.toJSON());
+  const filePath = path.join(commandsPath, file);
+  const command = require(filePath);
+  if ('data' in command) {
+    commands.push(command.data.toJSON());
+    console.log(`✓ Collected command: ${command.data.name}`);
+  } else {
+    console.warn(`[WARNING] The command at ${filePath} is missing a required "data" property.`);
+  }
 }
 
-const rest = new REST({ version: '10' }).setToken(token);
+const { TOKEN, CLIENT_ID } = process.env;
+
+if (!TOKEN || !CLIENT_ID) {
+  console.error('❌ Error: TOKEN and CLIENT_ID environment variables must be set.');
+  process.exit(1);
+}
+
+const rest = new REST().setToken(TOKEN);
 
 (async () => {
   try {
-    console.log('Started refreshing application (/) commands.');
+    console.log(`\n🔄 Refreshing ${commands.length} application command(s)...\n`);
 
-    await rest.put(
-      Routes.applicationCommands(clientId),
+    const data = await rest.put(
+      Routes.applicationCommands(CLIENT_ID),
       { body: commands },
     );
 
-    console.log('Successfully reloaded application (/) commands.');
+    console.log(`✓ Successfully reloaded ${data.length} application command(s).\n`);
   } catch (error) {
-    console.error(error);
+    console.error('❌ Error deploying commands:', error);
+    process.exit(1);
   }
 })();
